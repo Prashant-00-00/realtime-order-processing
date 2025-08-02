@@ -67,9 +67,11 @@ app.post('/order', async (req, res) => {
 
 app.patch("/orders/:id/status", async (req, res) => {
   const { status } = req.body;
-  if (!["Preparing", "Declined"].includes(status)) {
-    return res.status(400).json({ error: "Invalid status" });
-  }
+
+  if (!["Preparing", "Prepared", "Declined"].includes(status)) {
+  return res.status(400).json({ error: "Invalid status" });
+}
+
 
   try {
     const order = await Order.findByIdAndUpdate(

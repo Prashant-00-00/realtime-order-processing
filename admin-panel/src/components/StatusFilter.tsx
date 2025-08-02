@@ -12,7 +12,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
   onStatusChange, 
   orderCounts 
 }) => {
-  const statuses: (Order['status'] | 'All')[] = ['All', 'Awaiting', 'Preparing', 'Prepared'];
+  const statuses: (Order['status'] | 'All')[] = ['All', 'Awaiting', 'Preparing', 'Prepared', 'Declined'];
 
   const getButtonClass = (status: Order['status'] | 'All') => {
     const baseClass = "px-4 py-2 rounded-lg text-sm font-medium transition-colors";
@@ -28,6 +28,8 @@ const StatusFilter: React.FC<StatusFilterProps> = ({
           return `${baseClass} bg-blue-600 text-white`;
         case 'Prepared':
           return `${baseClass} bg-green-600 text-white`;
+        case 'Declined':
+          return `${baseClass} bg-red-600 text-white`;
       }
     }
     

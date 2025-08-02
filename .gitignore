@@ -1,5 +1,7 @@
 order-service/node_modules/
 worker-service/node_modules/
+admin-panel/node_modules
 
 order-service/.env
 worker-service/.env
+admin-panel/.env

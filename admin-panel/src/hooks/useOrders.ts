@@ -3,8 +3,6 @@ import { Order } from '../types';
 const API_BASE = import.meta.env.VITE_API_URL;
 
 
-// const API_BASE = 'http://order-service:3000';
-
 export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);

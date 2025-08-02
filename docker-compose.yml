@@ -44,3 +44,13 @@ services:
       - KAFKA_BROKER=broker:29092
       - MONGO_URI=mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders
 
+  admin-panel:
+    build: ./admin-panel
+    container_name: admin-panel
+    ports:
+      - 5173:80
+    environment:
+      - VITE_API_URL=http://order-service:3000
+    depends_on:
+      - order-service
+  
