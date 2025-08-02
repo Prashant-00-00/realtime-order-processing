@@ -1,14 +1,16 @@
 import express from "express";
 import { checkbody } from "./config.js";
 import { kafka } from "./kafka/kafka-config.js";
+import { Order } from "./db.js";
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const producer = kafka.producer();
 const admin = kafka.admin();
 
-// Function to ensure topic exists
 async function ensureTopicExists(topicName) {
     await admin.connect();
     const topics = await admin.listTopics();
@@ -27,6 +29,16 @@ async function ensureTopicExists(topicName) {
 
 await ensureTopicExists("orders");
 await producer.connect();
+
+app.get("/orders", async (req, res) => {
+  try {
+    const orders = await Order.find({ status: "Awaiting" }).sort({ timestamp: -1 });
+    res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 app.post('/order', async (req, res) => {
     const body = req.body;
@@ -51,6 +63,28 @@ app.post('/order', async (req, res) => {
         console.error("Error sending to Kafka:", err);
         res.status(500).json({ message: "Failed to send order to Kafka" });
     }
+});
+
+app.patch("/orders/:id/status", async (req, res) => {
+  const { status } = req.body;
+  if (!["Preparing", "Declined"].includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    res.json(order);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 app.listen(3000, () => {
