@@ -6,12 +6,30 @@ const app = express();
 app.use(express.json());
 
 const producer = kafka.producer();
+const admin = kafka.admin();
 
+// Function to ensure topic exists
+async function ensureTopicExists(topicName) {
+    await admin.connect();
+    const topics = await admin.listTopics();
+    if (!topics.includes(topicName)) {
+        console.log(`Topic "${topicName}" not found. Creating...`);
+        await admin.createTopics({
+            topics: [{ topic: topicName, numPartitions: 1, replicationFactor: 1 }],
+            waitForLeaders: true
+        });
+        console.log(`Topic "${topicName}" created.`);
+    } else {
+        console.log(`Topic "${topicName}" already exists.`);
+    }
+    await admin.disconnect();
+}
+
+await ensureTopicExists("orders");
 await producer.connect();
 
 app.post('/order', async (req, res) => {
     const body = req.body;
-
     const parsedBody = checkbody.safeParse(body);
 
     if (!parsedBody.success) {
@@ -25,10 +43,9 @@ app.post('/order', async (req, res) => {
         await producer.send({
             topic: 'orders',
             messages: [
-                { value: JSON.stringify(parsedBody.data) }, 
+                { value: JSON.stringify(parsedBody.data) },
             ],
         });
-
         res.status(200).json({ message: "Order sent to Kafka successfully" });
     } catch (err) {
         console.error("Error sending to Kafka:", err);

@@ -1,0 +1,17 @@
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Install dependencies only when package.json changes
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy rest of the application
+COPY . .
+
+# Expose service port
+EXPOSE 3000
+
+# Start the app
+CMD ["npm", "start"]

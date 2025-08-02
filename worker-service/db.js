@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-await mongoose.connect('mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders')
+await mongoose.connect(process.env.MONGO_URI)
 
 const orderSchema = new mongoose.Schema({
     item: String,

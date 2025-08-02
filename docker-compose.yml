@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   broker:
     image: apache/kafka:latest
@@ -21,3 +23,24 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    depends_on:
+      - broker
+    environment:
+      - KAFKA_BROKER=broker:29092
+      - MONGO_URI=mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders
+    ports:
+      - 3000:3000
+
+  worker-service:
+    build: ./worker-service
+    container_name: worker-service
+    depends_on:
+      - broker
+    environment:
+      - KAFKA_BROKER=broker:29092
+      - MONGO_URI=mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders
+
