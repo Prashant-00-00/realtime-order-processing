@@ -32,13 +32,17 @@ await producer.connect();
 
 app.get("/orders", async (req, res) => {
   try {
-    const orders = await Order.find({ status: "Awaiting" }).sort({ timestamp: -1 });
+    const orders = await Order.find({
+      status: { $in: ["Awaiting", "Preparing"] }
+    }).sort({ timestamp: -1 });
+
     res.json(orders);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 app.post('/order', async (req, res) => {
     const body = req.body;
