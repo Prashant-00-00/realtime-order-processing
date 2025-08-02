@@ -1,4 +1,5 @@
-./order-service/node_modules
-./order-service/.env
-./worker-service/node_modules
-./worker-service/.env
+order-service/node_modules/
+worker-service/node_modules/
+
+order-service/.env
+worker-service/.env
