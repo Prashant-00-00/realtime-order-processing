@@ -24,16 +24,23 @@ services:
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
-  order-service:
+  order-service1:
     build: ./order-service
-    container_name: order-service
+    container_name: order-service1
     depends_on:
       - broker
     environment:
       - KAFKA_BROKER=broker:29092
       - MONGO_URI=mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders
-    ports:
-      - 3000:3000
+
+  order-service2:
+    build: ./order-service
+    container_name: order-service2
+    depends_on:
+      - broker
+    environment:
+      - KAFKA_BROKER=broker:29092
+      - MONGO_URI=mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders
 
   worker-service:
     build: ./worker-service
@@ -44,13 +51,23 @@ services:
       - KAFKA_BROKER=broker:29092
       - MONGO_URI=mongodb+srv://prashant:RbZhgAXkd1YF9O9I@prashant-cluster.a3uiuae.mongodb.net/realtime-orders
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - order-service1
+      - order-service2
+
   admin-panel:
     build: ./admin-panel
     container_name: admin-panel
     ports:
       - 5173:80
     environment:
-      - VITE_API_URL=http://order-service:3000
+      - VITE_API_URL=http://localhost
     depends_on:
-      - order-service
-  
+      - nginx
